@@ -1,0 +1,60 @@
+# CMake 빌드 관련
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+CMakeUserPresets.json
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Makefile
+*.cmake
+Testing/
+
+# VSCode 관련
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/c_cpp_properties.json
+.history/
+
+# STM32CubeMX 관련
+.mxproject
+
+# STM32 빌드 결과물
+*.o
+*.d
+*.elf
+*.hex
+*.bin
+*.list
+*.map
+*.su
+*.a
+
+# 디버그 관련
+*.log
+*.dmp
+debug/
+
+# 임시 파일
+*.tmp
+*.bak
+*.swp
+*~
+
+# 운영체제 관련
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 기타 도구 관련
+.dep/
+.settings/
+*.launch
