@@ -104,6 +104,10 @@ int main(void)
   MX_USART4_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  // HAL_TIM_Base_Start_IT(&htim2);
+  // HAL_TIM_Base_Start_IT(&htim3);
+  timer_init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,11 +115,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(3000);
-    // wow
   }
   /* USER CODE END 3 */
 }
@@ -299,7 +299,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 38400;
+  huart3.Init.BaudRate = 9600;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;

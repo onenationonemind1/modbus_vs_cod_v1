@@ -50,9 +50,19 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
 )
 
+file(GLOB SRC_FILES CONFIGURE_DEPENDS
+    Core/Src/*.c
+    Core/Inc/*.h
+)
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    ${SRC_FILES}
+)
+
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    Core/Src
 )
 
 # Add project symbols (macros)
