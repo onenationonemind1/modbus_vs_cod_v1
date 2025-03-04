@@ -69,6 +69,7 @@ void setup_data_read (void)
 {
     uint32_t data = 0;
 
+
     // setup
     data = flash_read_user_page(ADDR_USER_FLASH_PAGE, 0);
     g_setup.init_data_1     = (uint8_t)((data & 0x000000FF) >> 0);

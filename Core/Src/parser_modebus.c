@@ -394,6 +394,40 @@ void parser_modbus_receive(void)
     // 4 [04] Read Input Registers
     case MODBUS_READ_HOLDING_REGISTERS:
     {
+        holding_register = parser_modbus_address();
+        if (holding_register >= MODBUS_REGISTER_NONE)
+        {
+            parser_modbus_exception(g_packet_modbus_rx.function_code, EXCEPTION_ILLEGAL_DATA_ADDRESS);
+            break;
+        }
+        holding_register_index = (g_packet_modbus_rx.start_address + 1) - g_holding_register_address[holding_register];
+
+        // Response
+        g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.slave_id;
+        g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.function_code;
+        g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.quantity_of_register * 2;
+
+        // simple_pack_sensor_data(&g_sensor_current, g_modbus_data, &g_modbus_index);
+        for (int i = 0; i < g_packet_modbus_rx.quantity_of_register; i++)
+        {
+            if (holding_register == MODBUS_REGISTER_SENSOR)
+            {
+                data = 1;
+                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
+                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
+            }
+
+            if (holding_register == MODBUS_REGISTER_DEVICE)
+            {
+                data = 1;
+                // g_setup.device_id = 3;
+                // data = g_setup.device_id;
+                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
+                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 0);
+            }
+            printf("holding register%d \r\n", holding_register);
+            printf("g_modbus_data[%d] = %d", i, g_modbus_data[g_modbus_index]);
+        }
     }
     break;
     case MODBUS_READ_INPUT_REGISTERS:

@@ -120,6 +120,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   uart_interrut_init();
   timer_init();
+  setup_data_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
