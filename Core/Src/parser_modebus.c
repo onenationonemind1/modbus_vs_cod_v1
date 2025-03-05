@@ -410,11 +410,11 @@ void parser_modbus_receive(void)
         // simple_pack_sensor_data(&g_sensor_current, g_modbus_data, &g_modbus_index);
         for (int i = 0; i < g_packet_modbus_rx.quantity_of_register; i++)
         {
-
             switch (holding_register)
             {
             case MODBUS_REGISTER_SENSOR:
-                pack_register_data(g_holding_register[holding_register][holding_register_index++]);
+                data = g_holding_register[holding_register][holding_register_index++];
+                pack_register_data(data);
                 break;
             case MODBUS_REGISTER_DEVICE:
                 data = g_holding_register[holding_register][holding_register_index + i];
@@ -424,26 +424,6 @@ void parser_modbus_receive(void)
                 pack_register_data(2);
                 break;
             }
-
-            // if (holding_register == MODBUS_REGISTER_SENSOR)
-            // {
-            //     data = 1;
-            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
-            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
-            // }
-            // if (holding_register == MODBUS_REGISTER_DEVICE)
-            // {
-            //     data = g_holding_register[holding_register][holding_register_index + i];
-            //     printf("data = 0x%02X\r\n", data);
-            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
-            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
-            // }
-            // if (holding_register == MODBUS_REGISTER_INFORMATION)
-            // {
-            //     data = 3;
-            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
-            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
-            // }
         }
     }
     break;
@@ -471,9 +451,7 @@ void parser_modbus_receive(void)
             {
                 continue;
             }
-
-            g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
-            g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
+            pack_register_data(data);
         }
         /* CO2 값 제외된 만큼 데이터 보충해주기*/
         data = 0;
@@ -510,10 +488,6 @@ void parser_modbus_receive(void)
         g_modbus_data[g_modbus_index++] = (uint8_t)((g_packet_modbus_rx.start_address & 0x00FF) >> 0);
         g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.data[0];
         g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.data[1];
-        printf("start_address = %d\r\n", (uint8_t)((g_packet_modbus_rx.start_address & 0xFF00) >> 8));
-        printf("start_address = %d\r\n", (uint8_t)((g_packet_modbus_rx.start_address & 0x00FF) >> 8));
-        printf("data = %d\r\n", g_packet_modbus_rx.data[0]);
-        printf("data = %d\r\n", g_packet_modbus_rx.data[1]);
     }
     break;
 
@@ -723,6 +697,8 @@ void parser_modbus(uint8_t data)
     break;
     }
 }
+
+// good
 
 // 1 ms
 void parser_modbus_handle(void)
