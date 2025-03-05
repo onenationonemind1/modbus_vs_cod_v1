@@ -410,23 +410,40 @@ void parser_modbus_receive(void)
         // simple_pack_sensor_data(&g_sensor_current, g_modbus_data, &g_modbus_index);
         for (int i = 0; i < g_packet_modbus_rx.quantity_of_register; i++)
         {
-            if (holding_register == MODBUS_REGISTER_SENSOR)
+
+            switch (holding_register)
             {
-                data = 1;
-                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
-                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
+            case MODBUS_REGISTER_SENSOR:
+                pack_register_data(g_holding_register[holding_register][holding_register_index++]);
+                break;
+            case MODBUS_REGISTER_DEVICE:
+                data = g_holding_register[holding_register][holding_register_index + i];
+                pack_register_data(data);
+                break;
+            case MODBUS_REGISTER_INFORMATION:
+                pack_register_data(2);
+                break;
             }
 
-            if (holding_register == MODBUS_REGISTER_DEVICE)
-            {
-                data = 1;
-                // g_setup.device_id = 3;
-                // data = g_setup.device_id;
-                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
-                g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 0);
-            }
-            printf("holding register%d \r\n", holding_register);
-            printf("g_modbus_data[%d] = %d", i, g_modbus_data[g_modbus_index]);
+            // if (holding_register == MODBUS_REGISTER_SENSOR)
+            // {
+            //     data = 1;
+            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
+            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
+            // }
+            // if (holding_register == MODBUS_REGISTER_DEVICE)
+            // {
+            //     data = g_holding_register[holding_register][holding_register_index + i];
+            //     printf("data = 0x%02X\r\n", data);
+            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
+            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
+            // }
+            // if (holding_register == MODBUS_REGISTER_INFORMATION)
+            // {
+            //     data = 3;
+            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
+            //     g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0x00FF) >> 0);
+            // }
         }
     }
     break;
@@ -493,6 +510,10 @@ void parser_modbus_receive(void)
         g_modbus_data[g_modbus_index++] = (uint8_t)((g_packet_modbus_rx.start_address & 0x00FF) >> 0);
         g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.data[0];
         g_modbus_data[g_modbus_index++] = g_packet_modbus_rx.data[1];
+        printf("start_address = %d\r\n", (uint8_t)((g_packet_modbus_rx.start_address & 0xFF00) >> 8));
+        printf("start_address = %d\r\n", (uint8_t)((g_packet_modbus_rx.start_address & 0x00FF) >> 8));
+        printf("data = %d\r\n", g_packet_modbus_rx.data[0]);
+        printf("data = %d\r\n", g_packet_modbus_rx.data[1]);
     }
     break;
 
@@ -551,6 +572,12 @@ void parser_modbus_receive(void)
     printf("enable\r\n");
 }
 
+void pack_register_data(uint16_t data)
+{
+    g_modbus_data[g_modbus_index++] = (uint8_t)((data & 0xFF00) >> 8);
+    g_modbus_data[g_modbus_index++] = (uint8_t)(data & 0x00FF);
+}
+
 void parser_modbus(uint8_t data)
 {
     // printf("DATA = 0x%02X\r\n", data);
@@ -590,6 +617,7 @@ void parser_modbus(uint8_t data)
 
     case MODBUS_ADDRESS:
     {
+        // printf("g_buffer[0,1] %d\r\n = ", data);
         g_buffer[index++] = data;
 
         if (index >= 2)
@@ -675,13 +703,14 @@ void parser_modbus(uint8_t data)
 
             g_packet_modbus_rx.crc16 = g_buffer[1] << 8;
             g_packet_modbus_rx.crc16 += g_buffer[0] << 0;
-            printf("g_buffer1 =  0x%02X\r\n", g_buffer[1]);
-            printf("g_buffer0 =  0x%02X\r\n", g_buffer[0]);
+            // printf("g_buffer1 =  0x%02X\r\n", g_buffer[1]);
+            // printf("g_buffer0 =  0x%02X\r\n", g_buffer[0]);
 
             if (crc_16 == g_packet_modbus_rx.crc16)
             {
                 parser_modbus_receive();
-                printf("oaky!\r\n");
+                printf("oaky!!!\r\n");
+                printf("0x%02X \r\n", g_packet_modbus_rx.start_address);
             }
             else
             {
@@ -719,16 +748,17 @@ void parser_modbus_handle(void)
         }
     }
 
-    if (++period_parser_id >= 1)
-    {
-        period_parser_id = 0;
+    /* 의미 파악이 잘안됨. */
+    // if (++period_parser_id >= 1)
+    // {
+    //     period_parser_id = 0;
 
-        if (g_modbus_slave_address != g_holding_register_device[0])
-        {
-            g_modbus_slave_address = g_setup.device_id = g_holding_register_device[0];
-            setup_data_write();
-        }
-    }
+    //     if (g_modbus_slave_address != g_holding_register_device[0])
+    //     {
+    //         g_modbus_slave_address = g_setup.device_id = g_holding_register_device[0];
+    //         setup_data_write();
+    //     }
+    // }
 
     if (++period_parser_modbus >= 1)
     {
